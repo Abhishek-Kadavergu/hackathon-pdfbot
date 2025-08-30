@@ -6,7 +6,8 @@ function App() {
   const [file, setFile] = useState(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [asking, setAsking] = useState(false);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -16,7 +17,7 @@ function App() {
     formData.append("file", file);
 
     try {
-      setLoading(true);
+      setUploading(true);
       const res = await axios.post("http://localhost:8000/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -24,14 +25,14 @@ function App() {
     } catch (err) {
       alert("Upload failed: " + err.message);
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
   };
 
   const handleAsk = async () => {
     if (!question) return alert("Please enter a question.");
     try {
-      setLoading(true);
+      setAsking(true);
       const res = await axios.post("http://localhost:8000/ask", {
         question: question,
         k: 5,
@@ -40,7 +41,7 @@ function App() {
     } catch (err) {
       alert("Failed to fetch answer: " + err.message);
     } finally {
-      setLoading(false);
+      setAsking(false);
     }
   };
 
@@ -61,8 +62,9 @@ function App() {
           <button
             onClick={handleUpload}
             className="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            disabled={uploading}
           >
-            {loading ? "Uploading..." : "Upload PDF"}
+            {uploading ? "Uploading..." : "Upload PDF"}
           </button>
         </div>
       </nav>
@@ -94,8 +96,9 @@ function App() {
           <button
             onClick={handleAsk}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            disabled={asking}
           >
-            {loading ? "Asking..." : "Send"}
+            {asking ? "Asking..." : "Send"}
           </button>
         </div>
       </footer>
