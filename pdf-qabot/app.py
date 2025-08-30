@@ -217,11 +217,15 @@ async def upload(file: UploadFile = File(...)):
     if not chunk_texts:
         raise HTTPException(status_code=400, detail="No extractable text found in the PDF")
 
-    store = get_store()
-    store.add(chunk_texts, metas)
-    store.save()
+    # 🔑 Reset store before adding new PDF
+    global _store
+    _store = EmbeddingStore(EMBED_MODEL_NAME)
+
+    _store.add(chunk_texts, metas)
+    _store.save()
 
     return {"ok": True, "file": file.filename, "pages": len(pages), "chunks_added": len(chunk_texts)}
+
 
 
 @app.post("/ask")
